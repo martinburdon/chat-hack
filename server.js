@@ -1,35 +1,42 @@
 
-var http = require('http');
-var express = require('express');
-var WSS = require('ws').Server;
-var port = process.env.PORT || 8080;
-console.log('port', port);
+const http = require('http');
+const express = require('express');
+const WSS = require('ws').Server;
+const app = express().use(express.static('public'));
+const port = process.env.PORT || 8080;
 
 var app = express().use(express.static('public'));
 var server = http.createServer(app);
 server.listen(port);
 
 var wss = new WSS({server: server});
-
-wss.on('connection', function(socket) {
-  console.log('Opened Connection 🎉');
-
-  var json = JSON.stringify({ message: 'Gotcha' });
+wss.on('connection', socket => {
+  const json = JSON.stringify({ message: 'Server connected' });
   socket.send(json);
-  console.log('Sent: ' + json);
 
-  socket.on('message', function(message) {
-    console.log('Received: ' + message);
-
-    wss.clients.forEach(function each(client) {
-      var json = JSON.stringify({ message: 'Something changed' });
-      client.send(json);
-      console.log('Sent: ' + json);
+  // When message received from client
+  socket.on('message', data => {
+    const { message } = data;
+    wss.clients.forEach(client => {
+      // Send message to each client
+      client.send(message);
     });
   });
 
-  socket.on('close', function() {
-    console.log('Closed Connection 😱');
+  socket.on('close', () => {
+    // console.log('Closed Connection 😱');
   });
 
 });
+
+const broadcast = () => {
+  const json = JSON.stringify({
+    message: 'Hello hello!'
+  });
+
+  wss.clients.forEach(client => {
+    client.send(json);
+    // console.log('Sent: ' + json);
+  });
+}
+// setInterval(broadcast, 3000);
