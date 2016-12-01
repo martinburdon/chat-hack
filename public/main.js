@@ -2,6 +2,8 @@ var stream = new EventSource("/sse");
 
 stream.onopen = function() {
   log('Opened connection 🎉');
+  const statusEl = document.getElementById('status');
+  statusEl.innerHTML = 'Connected 🎉';
 };
 
 stream.onerror = function (event) {
@@ -17,7 +19,7 @@ document.querySelector('#close').addEventListener('click', function(event) {
   log('Closed connection 😱');
 });
 
-var list = document.getElementById('log');
+var list = document.getElementById('transcript');
 var log = function(text) {
   var li = document.createElement('li');
   li.innerHTML = text;
