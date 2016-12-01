@@ -8,7 +8,7 @@ var app = express().use(express.static('public'));
 var server = http.createServer(app);
 server.listen(port);
 
-var wss = new WSS({server});
+var wss = new WSS({server: server});
 
 wss.on('connection', function(socket) {
   console.log('Opened Connection 🎉');
