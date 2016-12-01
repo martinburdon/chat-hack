@@ -1,37 +1,40 @@
+// Open a connection
+const socket = new WebSocket('ws://localhost:8081/');
 
-var socket = new WebSocket('ws://localhost:8081/');
-socket.onopen = function(event) {
+socket.onopen = event => {
   log('Opened connection 🎉');
-  var json = JSON.stringify({ message: 'Hello' });
+  const json = JSON.stringify({ message: 'Hello' });
+
+  // Send to the esr
   socket.send(json);
   log('Sent: ' + json);
 }
 
-socket.onerror = function(event) {
+socket.onerror = event => {
   log('Error: ' + JSON.stringify(event));
 }
 
-socket.onmessage = function (event) {
+socket.onmessage = event => {
   log('Received: ' + event.data);
 }
 
-socket.onclose = function(event) {
+socket.onclose = event => {
   log('Closed connection 😱');
 }
 
-document.querySelector('#close').addEventListener('click', function(event) {
+document.querySelector('#close').addEventListener('click', event => {
   socket.close();
   log('Closed connection 😱');
 });
 
-document.querySelector('#send').addEventListener('click', function(event) {
-  var json = JSON.stringify({ message: 'Hey there' });
+document.querySelector('#send').addEventListener('click', event => {
+  const json = JSON.stringify({ message: 'Hey there' });
   socket.send(json);
   log('Sent: ' + json);
 });
 
-var log = function(text) {
-  var li = document.createElement('li');
+const log = function(text) {
+  let li = document.createElement('li');
   li.innerHTML = text;
   document.getElementById('log').appendChild(li);
 }
