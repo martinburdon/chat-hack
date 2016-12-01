@@ -1,38 +1,51 @@
-var WSS = require('ws').Server;
+var http = require('http');
+var express = require('express');
+var SSE = require('sse');
 
-// Start the server
-var wss = new WSS({ port: 8081 });
+var app = express().use(express.static('public'));
+var server = http.createServer(app);
+var clients = [];
 
-// When a connection is established
-wss.on('connection', socket => {
-  console.log('Opened connection');
+server.listen(8080, '127.0.0.1', function() {
+  var sse = new SSE(server);
 
-  // Send data back to the client
-  var json = JSON.stringify({ message: 'Gotcha' });
-  socket.send(json);
+  sse.on('connection', function(stream) {
+    clients.push(stream);
+    console.log('Opened connection 🎉');
 
-  // When data is received
-  socket.on('message', message => {
-    console.log(`Received ${message}`);
+    var json = JSON.stringify({ message: 'Gotcha' });
+    stream.send(json);
+    console.log('Sent: ' + json);
+
+    stream.on('close', function() {
+      clients.splice(clients.indexOf(stream), 1);
+      console.log('Closed connection 😱');
+    });
   });
+});
 
-  // The connection is closed
-  socket.on('close', () => {
-    console.log('Closed connection');
+var broadcast = function() {
+  var json = JSON.stringify({ message: 'Hello hello!' });
+
+  clients.forEach(function(stream) {
+    stream.send(json);
+    console.log('Sent: ' + json);
+  });
+}
+setInterval(broadcast, 3000)
+
+// can receive from the client with standard http and broadcast
+
+var bodyParser = require('body-parser')
+app.use(bodyParser.json())
+app.post('/api', function(req, res) {
+  var message = JSON.stringify(req.body);
+  console.log('Received: ' + message);
+  res.status(200).end();
+
+  var json = JSON.stringify({ message: 'Something changed' });
+  clients.forEach(function(stream) {
+    stream.send(json);
+    console.log('Sent: ' + json);
   });
 })
-
-// Every 3 secs broadcase "{ message: Hello hello! }" to all connected clients
-var broadcast = () => {
-  var json = JSON.stringify({
-    message: 'Hello hello'
-  });
-
-  // wss.clients is an array of all connected clients
-  wss.clients.forEach(function each(client) {
-    client.send(json);
-    console.log(`Sent: ${json}`);
-  })
-}
-
-setInterval(broadcast, 3000);
