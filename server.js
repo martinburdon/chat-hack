@@ -13,11 +13,10 @@ wss.on('connection', socket => {
   socket.send(json);
 
   // When message received from client
-  socket.on('message', data => {
-    const { message } = data;
+  socket.on('message', messageData => {
     wss.clients.forEach(client => {
       // Send message to each client
-      client.send(message);
+      client.send(messageData);
     });
   });
 
