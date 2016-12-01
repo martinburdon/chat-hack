@@ -33,15 +33,3 @@ wss.on('connection', function(socket) {
   });
 
 });
-
-var broadcast = function() {
-  var json = JSON.stringify({
-    message: 'Hello hello!'
-  });
-
-  wss.clients.forEach(function each(client) {
-    client.send(json);
-    console.log('Sent: ' + json);
-  });
-}
-setInterval(broadcast, 3000);
