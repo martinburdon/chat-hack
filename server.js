@@ -3,6 +3,7 @@ var http = require('http');
 var express = require('express');
 var WSS = require('ws').Server;
 var port = process.env.PORT || 8080;
+console.log('port', port);
 
 var app = express().use(express.static('public'));
 var server = http.createServer(app);
