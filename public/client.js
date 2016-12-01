@@ -7,7 +7,7 @@ socket.onopen = event => {
 
   // Send to the esr
   socket.send(json);
-  log('Sent: ' + json);
+  // log('Sent: ' + json);
 }
 
 socket.onerror = event => {
@@ -15,7 +15,8 @@ socket.onerror = event => {
 }
 
 socket.onmessage = event => {
-  log('Received: ' + event.data);
+  const { data } = event;
+  log(data);
 }
 
 socket.onclose = event => {
@@ -24,13 +25,16 @@ socket.onclose = event => {
 
 document.querySelector('#close').addEventListener('click', event => {
   socket.close();
-  log('Closed connection 😱');
 });
 
 document.querySelector('#send').addEventListener('click', event => {
-  const json = JSON.stringify({ message: 'Hey there' });
+  const message = document.getElementById('message').value;
+  const json = JSON.stringify({
+    // name, TODO
+    // time, TODO
+    message
+  });
   socket.send(json);
-  log('Sent: ' + json);
 });
 
 const log = function(text) {
