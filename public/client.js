@@ -1,5 +1,4 @@
-// Open a connection
-const socket = new WebSocket('ws://localhost:8081/');
+const socket = new WebSocket(`wss://still-lowlands-27315.herokuapp.com`);
 
 socket.onopen = event => {
   log('Opened connection 🎉');
