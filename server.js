@@ -2,12 +2,14 @@
 var http = require('http');
 var express = require('express');
 var WSS = require('ws').Server;
+var port = process.env.PORT || 8080;
 
 var app = express().use(express.static('public'));
 var server = http.createServer(app);
-server.listen(8080, '127.0.0.1');
+server.listen(port);
 
-var wss = new WSS({ port: 8081 });
+var wss = new WSS({server});
+
 wss.on('connection', function(socket) {
   console.log('Opened Connection 🎉');
 
