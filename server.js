@@ -1,51 +1,44 @@
+
 var http = require('http');
 var express = require('express');
-var SSE = require('sse');
+var WSS = require('ws').Server;
 
 var app = express().use(express.static('public'));
 var server = http.createServer(app);
-var clients = [];
+server.listen(8080, '127.0.0.1');
 
-server.listen(8080, '127.0.0.1', function() {
-  var sse = new SSE(server);
+var wss = new WSS({ port: 8081 });
+wss.on('connection', function(socket) {
+  console.log('Opened Connection 🎉');
 
-  sse.on('connection', function(stream) {
-    clients.push(stream);
-    console.log('Opened connection 🎉');
+  var json = JSON.stringify({ message: 'Gotcha' });
+  socket.send(json);
+  console.log('Sent: ' + json);
 
-    var json = JSON.stringify({ message: 'Gotcha' });
-    stream.send(json);
-    console.log('Sent: ' + json);
+  socket.on('message', function(message) {
+    console.log('Received: ' + message);
 
-    stream.on('close', function() {
-      clients.splice(clients.indexOf(stream), 1);
-      console.log('Closed connection 😱');
+    wss.clients.forEach(function each(client) {
+      var json = JSON.stringify({ message: 'Something changed' });
+      client.send(json);
+      console.log('Sent: ' + json);
     });
   });
+
+  socket.on('close', function() {
+    console.log('Closed Connection 😱');
+  });
+
 });
 
 var broadcast = function() {
-  var json = JSON.stringify({ message: 'Hello hello!' });
+  var json = JSON.stringify({
+    message: 'Hello hello!'
+  });
 
-  clients.forEach(function(stream) {
-    stream.send(json);
+  wss.clients.forEach(function each(client) {
+    client.send(json);
     console.log('Sent: ' + json);
   });
 }
-setInterval(broadcast, 3000)
-
-// can receive from the client with standard http and broadcast
-
-var bodyParser = require('body-parser')
-app.use(bodyParser.json())
-app.post('/api', function(req, res) {
-  var message = JSON.stringify(req.body);
-  console.log('Received: ' + message);
-  res.status(200).end();
-
-  var json = JSON.stringify({ message: 'Something changed' });
-  clients.forEach(function(stream) {
-    stream.send(json);
-    console.log('Sent: ' + json);
-  });
-})
+setInterval(broadcast, 3000);

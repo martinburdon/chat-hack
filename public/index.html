@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <style media="screen">
+      td { vertical-align: top }
+    </style>
   </head>
   <body>
     <p>
@@ -10,19 +13,6 @@
       <button id="close">Close</button>
     </p>
     <ul id="log"></ul>
-
-    <chat-window>
-      <ul id="transcript">
-        <li id="status">Connecting</li>
-      </ul>
-      <form class="message-form" method="post">
-        <textarea class="message-field" rows="8" cols="80" required></textarea>
-        <button class="btn-submit" type="submit">Send</button>
-        <button class="btn-close" type="button">Close</button>
-      </form>
-    </chat-window>
-
-
-    <script src="dist/bundle.js"></script>
+    <script src="client.js"></script>
   </body>
 </html>
