@@ -1,5 +1,4 @@
-
-var socket = new WebSocket('wss://still-lowlands-27315.herokuapp.com:8080');
+var socket = new WebSocket(`wss://still-lowlands-27315.herokuapp.com`);
 socket.onopen = function(event) {
   log('Opened connection 🎉');
   var json = JSON.stringify({ message: 'Hello' });
