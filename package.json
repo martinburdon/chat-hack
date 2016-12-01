@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "_client/main.js",
+  "engines": {
+    "node": ">6.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/martinburdon/chat-hack.git"
