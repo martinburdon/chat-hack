@@ -9,24 +9,20 @@ server.listen(8080, '127.0.0.1');
 
 const wss = new WSS({ port: 8081 });
 wss.on('connection', socket => {
-  console.log('Opened Connection 🎉');
-
-  const json = JSON.stringify({ message: 'Gotcha' });
+  const json = JSON.stringify({ message: 'Server connected' });
   socket.send(json);
-  console.log('Sent: ' + json);
 
-  socket.on('message', message => {
-    console.log('Received: ' + message);
-
+  // When message received from client
+  socket.on('message', data => {
+    const { message } = data;
     wss.clients.forEach(client => {
-      const json = JSON.stringify({ message: 'Something changed' });
-      client.send(json);
-      console.log('Sent: ' + json);
+      // Send message to each client
+      client.send(message);
     });
   });
 
   socket.on('close', () => {
-    console.log('Closed Connection 😱');
+    // console.log('Closed Connection 😱');
   });
 
 });
@@ -38,7 +34,7 @@ const broadcast = () => {
 
   wss.clients.forEach(client => {
     client.send(json);
-    console.log('Sent: ' + json);
+    // console.log('Sent: ' + json);
   });
 }
-setInterval(broadcast, 3000);
+// setInterval(broadcast, 3000);
