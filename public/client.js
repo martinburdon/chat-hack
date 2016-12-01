@@ -14,8 +14,9 @@ socket.onerror = event => {
 }
 
 socket.onmessage = event => {
-  const { data } = event;
-  log(data);
+  let { data } = event;
+  data = JSON.parse(data);
+  log(data.message);
 }
 
 socket.onclose = event => {
