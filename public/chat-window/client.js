@@ -36,10 +36,6 @@ proto.createdCallback = function() {
 
     socket.onopen = event => {
       log('Opened connection 🎉');
-      const json = JSON.stringify({ message: 'Hello' });
-
-      // Send to the esr
-      socket.send(json);
       // log('Sent: ' + json);
     }
 
