@@ -50,10 +50,6 @@
   color: #fff;
   font-size: 0.9rem;
   text-align: left;
-<<<<<<< 341cc551d9488363167047e2c575c4f3da34b7a5:public/chat-window/styles.css
-  max-height: 200px;
-  overflow-x: scroll;
-=======
   height: 14rem;
   overflow-y: scroll;
   position: relative;
@@ -66,7 +62,6 @@
   position: absolute;
   width: 100%;
   bottom: 0;
->>>>>>> Date time:public/styles.css
 }
 
 .transcript li {
