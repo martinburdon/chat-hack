@@ -72,13 +72,32 @@ const template = `
       margin: 0 1rem 0.5rem;
     }
 
+    .my-msg {
+      align-items: flex-start;
+    }
+
+    .not-my-msg {
+      align-items: flex-end;
+    }
+
+    .my-msg message-text {
+      background: #0277BD;
+    }
+
+    .not-my-msg message-text {
+      background: #03A9F4;
+    }
+
     date-time {
       font-size: 0.6rem;
       color: #039BE5;
+      margin-bottom: 0.2rem;
     }
 
     message-text {
-
+      border-radius: 10rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
     }
 
     .transcript .connected {
@@ -167,7 +186,7 @@ proto.createdCallback = function() {
   }
 
   socket.onclose = event => {
-    log('Closed connection 😱');
+    log({ message: 'Closed connection 😱' });
   }
 
   // closeEl.addEventListener('click', event => {
@@ -180,6 +199,13 @@ proto.createdCallback = function() {
     const json = JSON.stringify({ message });
     socket.send(json);
     textareaEl.value = '';
+
+    // Add message to own client
+    logMessage({
+      message,
+      time: getDateTime(),
+      className: 'my-msg'
+    });
   });
 
   toggleChatEl.addEventListener('click', event => {
@@ -194,18 +220,19 @@ proto.createdCallback = function() {
     const { message, className } = data;
     let li = document.createElement('li');
     li.innerHTML = message;
-    li.className = className;
+    if (className) li.className = className;
     transcriptEl.insertBefore(li, transcriptEl.firstChild);
   }
 
   const logMessage = function(msgData) {
     console.log(msgData);
-    const { message, time } = msgData;
+    const { message, time, className } = msgData;
     const html =
       `<date-time>${time}</date-time>
        <message-text>${message}</message-text>`;
 
     const li = document.createElement('li');
+    if (className) li.className = className;
     li.innerHTML = html;
     transcriptEl.insertBefore(li, transcriptEl.firstChild);
   }
@@ -213,6 +240,16 @@ proto.createdCallback = function() {
   window.addEventListener('beforeunload', function() {
     socket.close();
   });
+
+  const getDateTime = () => {
+    let dateObject = new Date();
+    let mins = dateObject.getMinutes();
+    mins = mins < 10 ? `0${mins}` : mins;
+    const time = `${dateObject.getHours()}:${mins}:${dateObject.getSeconds()}`;
+    const date = `${dateObject.getDate()}/${dateObject.getMonth() + 1}/${dateObject.getFullYear() + 1}`;
+    const fullTimeDate = `${time}    ${date}`;
+    return fullTimeDate;
+  }
 }
 
 var XComponent = document.registerElement('chat-window', {
