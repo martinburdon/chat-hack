@@ -45,17 +45,51 @@
 /* Transcript */
 .transcript {
   list-style: none;
-  padding: 1rem;
+  padding: 1rem 0;
   margin: 0;
   color: #fff;
   font-size: 0.9rem;
   text-align: left;
+<<<<<<< 341cc551d9488363167047e2c575c4f3da34b7a5:public/chat-window/styles.css
   max-height: 200px;
   overflow-x: scroll;
+=======
+  height: 14rem;
+  overflow-y: scroll;
+  position: relative;
+}
+
+.transcript::after {
+  content: '';
+  background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%, #01579B 80%);
+  height: 2rem;
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+>>>>>>> Date time:public/styles.css
 }
 
 .transcript li {
-  margin-bottom: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  margin: 0 1rem 0.5rem;
+}
+
+date-time {
+  font-size: 0.6rem;
+  color: #039BE5;
+}
+
+message-text {
+
+}
+
+.transcript .connected {
+  background: #558B2F;
+  color: #fff;
+  padding: 0.2rem;
+  text-align: center;
+  margin: 0;
 }
 
 /* Form area */
