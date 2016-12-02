@@ -1,5 +1,124 @@
 const template = `
-  <link rel="stylesheet" href="./chat-window/styles.css">
+  <style>
+    /* Container */
+    .chat-container {
+      width: 16rem;
+      height: 20rem;
+      background: #01579B;
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      right: 4rem;
+      bottom: -17rem;
+      transition: 0.3s bottom ease;
+    }
+
+    .chat-container.open {
+      bottom: 0;
+    }
+
+    /* Toggle chat */
+    .toggle-chat {
+      background: #0277bd;
+      padding: 0.2rem 1rem;
+      color: #fff;
+      border-radius: 0.2rem 0.2rem 0 0;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05rem;
+      cursor: pointer;
+      height: 3rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .toggle-chat:hover {
+      background: #0288d1;
+    }
+
+    .toggle-chat svg {
+      width: 2rem;
+      height: 2rem;
+      display: block;
+      fill: #fff;
+    }
+
+    /* Transcript */
+    .transcript {
+      list-style: none;
+      padding: 1rem 0;
+      margin: 0;
+      color: #fff;
+      font-size: 0.9rem;
+      text-align: left;
+      height: 14rem;
+      overflow-y: scroll;
+      position: relative;
+    }
+
+    .transcript::after {
+      content: '';
+      background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%, #01579B 80%);
+      height: 2rem;
+      position: absolute;
+      width: 100%;
+      bottom: 0;
+    }
+
+    .transcript li {
+      display: flex;
+      flex-direction: column;
+      margin: 0 1rem 0.5rem;
+    }
+
+    date-time {
+      font-size: 0.6rem;
+      color: #039BE5;
+    }
+
+    message-text {
+
+    }
+
+    .transcript .connected {
+      background: #558B2F;
+      color: #fff;
+      padding: 0.2rem;
+      text-align: center;
+      margin: 0;
+    }
+
+    /* Form area */
+    .form-area {
+      display: flex;
+      margin-top: auto;
+      height: 3rem;
+    }
+
+    .form-area input {
+      flex-grow: 1;
+      padding: 0.2rem 1rem;
+      font-size: 0.8rem;
+      border: 0;
+      border-left: 1px solid #e0e0e0;
+    }
+
+    .form-area button {
+      background: #8bc34a;
+      color: #fff;
+      border: none;
+      width: 3rem;
+    }
+
+    .form-area button svg {
+      height: 2rem;
+      width: 2rem;
+      display: block;
+      fill: #F1F8E9;
+      margin: auto;
+    }
+  </style>
 
   <section id="chatContainer" class="chat-container">
     <header id="toggleChat" class="toggle-chat">
@@ -15,71 +134,85 @@ const template = `
 `;
 
 const socket = new WebSocket(`wss://still-lowlands-27315.herokuapp.com`);
+// const socket = new WebSocket(`ws://localhost:8081/`);
 const proto = Object.create(HTMLElement.prototype);
 
 proto.createdCallback = function() {
-    var test = this.createShadowRoot();
+  var test = this.createShadowRoot();
 
-    test.innerHTML = template;
+  test.innerHTML = template;
 
-    const chatContainerEl = this.shadowRoot.querySelector('#chatContainer');
-    const textareaEl = this.shadowRoot.querySelector('#message');
-    const sendEl = this.shadowRoot.querySelector('#send');
-    const transcriptEl = this.shadowRoot.querySelector('#transcript');
-    const toggleChatEl = this.shadowRoot.querySelector('#toggleChat');
+  const chatContainerEl = this.shadowRoot.querySelector('#chatContainer');
+  const textareaEl = this.shadowRoot.querySelector('#message');
+  const sendEl = this.shadowRoot.querySelector('#send');
+  const transcriptEl = this.shadowRoot.querySelector('#transcript');
+  const toggleChatEl = this.shadowRoot.querySelector('#toggleChat');
 
-    const log = function(text) {
-      let li = document.createElement('li');
-      li.innerHTML = text;
-      transcriptEl.insertBefore(li, transcriptEl.firstChild);
-    };
-
-    socket.onopen = event => {
-      log('Opened connection 🎉');
-      // log('Sent: ' + json);
+  socket.onopen = event => {
+    const data = {
+      message: 'Opened connection 🎉',
+      className: 'connected'
     }
+    log(data);
+  }
 
-    socket.onerror = event => {
-      log('Error: ' + JSON.stringify(event));
+  socket.onerror = event => {
+    log('Error: ' + JSON.stringify(event));
+  }
+
+  socket.onmessage = event => {
+    const { data } = event;
+    const msgData = JSON.parse(data);
+    logMessage(msgData);
+  }
+
+  socket.onclose = event => {
+    log('Closed connection 😱');
+  }
+
+  // closeEl.addEventListener('click', event => {
+  //   socket.close();
+  // });
+
+  sendEl.addEventListener('click', event => {
+    event.preventDefault();
+    const message = textareaEl.value;
+    const json = JSON.stringify({ message });
+    socket.send(json);
+    textareaEl.value = '';
+  });
+
+  toggleChatEl.addEventListener('click', event => {
+    if (chatContainerEl.classList.contains('open')) {
+      chatContainerEl.classList.remove('open')
+    } else {
+      chatContainerEl.classList.add('open')
     }
+  });
 
-    socket.onmessage = event => {
-      let { data } = event;
-      data = JSON.parse(data);
-      log(data.message);
-    }
+  const log = function(data) {
+    const { message, className } = data;
+    let li = document.createElement('li');
+    li.innerHTML = message;
+    li.className = className;
+    transcriptEl.insertBefore(li, transcriptEl.firstChild);
+  }
 
-    socket.onclose = event => {
-      log('Closed connection 😱');
-    }
+  const logMessage = function(msgData) {
+    console.log(msgData);
+    const { message, time } = msgData;
+    const html =
+      `<date-time>${time}</date-time>
+       <message-text>${message}</message-text>`;
 
-    // closeEl.addEventListener('click', event => {
-    //   socket.close();
-    // });
+    const li = document.createElement('li');
+    li.innerHTML = html;
+    transcriptEl.insertBefore(li, transcriptEl.firstChild);
+  }
 
-    sendEl.addEventListener('click', event => {
-      event.preventDefault();
-      const message = textareaEl.value;
-      const json = JSON.stringify({
-        // name, TODO
-        // time, TODO
-        message
-      });
-      socket.send(json);
-      textareaEl.value = '';
-    });
-
-    toggleChatEl.addEventListener('click', event => {
-      if (chatContainerEl.classList.contains('open')) {
-        chatContainerEl.classList.remove('open')
-      } else {
-        chatContainerEl.classList.add('open')
-      }
-    });
-
-    window.addEventListener('beforeunload', function() {
-      socket.close();
-    });
+  window.addEventListener('beforeunload', function() {
+    socket.close();
+  });
 }
 
 var XComponent = document.registerElement('chat-window', {

@@ -1,4 +1,3 @@
-
 const http = require('http');
 const express = require('express');
 const WSS = require('ws').Server;
@@ -8,34 +7,49 @@ const server = http.createServer(app);
 
 server.listen(port);
 
+// Prod
 const wss = new WSS({server});
 
-wss.on('connection', socket => {
-  const json = JSON.stringify({ message: 'Server connected' });
-  socket.send(json);
+// Local
+// const wss = new WSS({ port: 8081 });
 
-  // When message received from client
-  socket.on('message', messageData => {
-    wss.clients.forEach(client => {
-      // Send message to each client
-      client.send(messageData);
-    });
+wss.on('connection', socket => {
+  // Successful connection messge
+  let connectedMessage = {
+    message: 'Server connected',
+    time: getDateTime()
+  };
+  connectedMessage = JSON.stringify(connectedMessage);
+  socket.send(connectedMessage);
+
+  // When new message received
+  socket.on('message', messageDataString => {
+    broadcast(messageDataString);
   });
 
+  // On connection close
   socket.on('close', () => {
     // console.log('Closed Connection 😱');
   });
-
 });
 
-const broadcast = () => {
-  const json = JSON.stringify({
-    message: 'Hello hello!'
-  });
+const broadcast = (messageDataString) => {
+  let messageData = JSON.parse(messageDataString);
+  messageData.time = getDateTime();
+  messageData = JSON.stringify(messageData);
 
   wss.clients.forEach(client => {
-    client.send(json);
-    // console.log('Sent: ' + json);
+    // Send message to each client
+    client.send(messageData);
   });
 }
-// setInterval(broadcast, 3000);
+
+const getDateTime = () => {
+  let dateObject = new Date();
+  let mins = dateObject.getMinutes();
+  mins = mins < 10 ? `0${mins}` : mins;
+  const time = `${dateObject.getHours()}:${mins}:${dateObject.getSeconds()}`;
+  const date = `${dateObject.getDate()}/${dateObject.getMonth() + 1}/${dateObject.getFullYear() + 1}`;
+  const fullTimeDate = `${time}    ${date}`;
+  return fullTimeDate;
+}
