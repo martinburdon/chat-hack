@@ -79,6 +79,10 @@ const template = `
       background: #03A9F4;
     }
 
+    .my-msg message-text {
+      font-style: italic;
+    }
+
     date-time {
       font-size: 0.6rem;
       color: #039BE5;
@@ -187,7 +191,10 @@ proto.createdCallback = function() {
   }
 
   socket.onclose = event => {
-    log({ message: 'Closed connection 😱' });
+    log({
+      message: 'Closed connection 😱',
+      className: 'system-msg'
+    });
   }
 
   // closeEl.addEventListener('click', event => {

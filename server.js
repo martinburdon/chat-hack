@@ -17,7 +17,8 @@ wss.on('connection', socket => {
   // Successful connection messge
   let connectedMessage = {
     message: 'Server connected',
-    time: getDateTime()
+    time: getDateTime(),
+    className: 'system-msg'
   };
   connectedMessage = JSON.stringify(connectedMessage);
   socket.send(connectedMessage);
