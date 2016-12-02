@@ -1,5 +1,5 @@
-// const socket = new WebSocket(`wss://still-lowlands-27315.herokuapp.com`);
-const socket = new WebSocket(`ws://localhost:8081/`);
+const socket = new WebSocket(`wss://still-lowlands-27315.herokuapp.com`);
+// const socket = new WebSocket(`ws://localhost:8081/`);
 
 const chatContainerEl = document.getElementById('chatContainer');
 const textareaEl = document.getElementById('message');
@@ -66,13 +66,6 @@ const logMessage = function(msgData) {
 
   const li = document.createElement('li');
   li.innerHTML = html;
-
-  // let li = document.createElement('li');
-  // let span = document.createElement('span');
-  // li.innerHTML = msgData.message;
-  // span.innerHTML = msgData.time;
-
-  // li.insertBefore(span, li.firstChild);
   transcriptEl.insertBefore(li, transcriptEl.firstChild);
 }
 

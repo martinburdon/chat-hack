@@ -133,73 +133,86 @@ const template = `
   </section>
 `;
 
-// const socket = new WebSocket(`wss://still-lowlands-27315.herokuapp.com`);
-const socket = new WebSocket(`ws://localhost:8081/`);
+const socket = new WebSocket(`wss://still-lowlands-27315.herokuapp.com`);
+// const socket = new WebSocket(`ws://localhost:8081/`);
 const proto = Object.create(HTMLElement.prototype);
 
 proto.createdCallback = function() {
-    var test = this.createShadowRoot();
+  var test = this.createShadowRoot();
 
-    test.innerHTML = template;
+  test.innerHTML = template;
 
-    const chatContainerEl = this.shadowRoot.querySelector('#chatContainer');
-    const textareaEl = this.shadowRoot.querySelector('#message');
-    const sendEl = this.shadowRoot.querySelector('#send');
-    const transcriptEl = this.shadowRoot.querySelector('#transcript');
-    const toggleChatEl = this.shadowRoot.querySelector('#toggleChat');
+  const chatContainerEl = this.shadowRoot.querySelector('#chatContainer');
+  const textareaEl = this.shadowRoot.querySelector('#message');
+  const sendEl = this.shadowRoot.querySelector('#send');
+  const transcriptEl = this.shadowRoot.querySelector('#transcript');
+  const toggleChatEl = this.shadowRoot.querySelector('#toggleChat');
 
-    const log = function(text) {
-      let li = document.createElement('li');
-      li.innerHTML = text;
-      transcriptEl.insertBefore(li, transcriptEl.firstChild);
-    };
-
-    socket.onopen = event => {
-      log('Opened connection 🎉');
-      // log('Sent: ' + json);
+  socket.onopen = event => {
+    const data = {
+      message: 'Opened connection 🎉',
+      className: 'connected'
     }
+    log(data);
+  }
 
-    socket.onerror = event => {
-      log('Error: ' + JSON.stringify(event));
+  socket.onerror = event => {
+    log('Error: ' + JSON.stringify(event));
+  }
+
+  socket.onmessage = event => {
+    const { data } = event;
+    const msgData = JSON.parse(data);
+    logMessage(msgData);
+  }
+
+  socket.onclose = event => {
+    log('Closed connection 😱');
+  }
+
+  // closeEl.addEventListener('click', event => {
+  //   socket.close();
+  // });
+
+  sendEl.addEventListener('click', event => {
+    event.preventDefault();
+    const message = textareaEl.value;
+    const json = JSON.stringify({ message });
+    socket.send(json);
+    textareaEl.value = '';
+  });
+
+  toggleChatEl.addEventListener('click', event => {
+    if (chatContainerEl.classList.contains('open')) {
+      chatContainerEl.classList.remove('open')
+    } else {
+      chatContainerEl.classList.add('open')
     }
+  });
 
-    socket.onmessage = event => {
-      let { data } = event;
-      data = JSON.parse(data);
-      log(data.message);
-    }
+  const log = function(data) {
+    const { message, className } = data;
+    let li = document.createElement('li');
+    li.innerHTML = message;
+    li.className = className;
+    transcriptEl.insertBefore(li, transcriptEl.firstChild);
+  }
 
-    socket.onclose = event => {
-      log('Closed connection 😱');
-    }
+  const logMessage = function(msgData) {
+    console.log(msgData);
+    const { message, time } = msgData;
+    const html =
+      `<date-time>${time}</date-time>
+       <message-text>${message}</message-text>`;
 
-    // closeEl.addEventListener('click', event => {
-    //   socket.close();
-    // });
+    const li = document.createElement('li');
+    li.innerHTML = html;
+    transcriptEl.insertBefore(li, transcriptEl.firstChild);
+  }
 
-    sendEl.addEventListener('click', event => {
-      event.preventDefault();
-      const message = textareaEl.value;
-      const json = JSON.stringify({
-        // name, TODO
-        // time, TODO
-        message
-      });
-      socket.send(json);
-      textareaEl.value = '';
-    });
-
-    toggleChatEl.addEventListener('click', event => {
-      if (chatContainerEl.classList.contains('open')) {
-        chatContainerEl.classList.remove('open')
-      } else {
-        chatContainerEl.classList.add('open')
-      }
-    });
-
-    window.addEventListener('beforeunload', function() {
-      socket.close();
-    });
+  window.addEventListener('beforeunload', function() {
+    socket.close();
+  });
 }
 
 var XComponent = document.registerElement('chat-window', {

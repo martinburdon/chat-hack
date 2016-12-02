@@ -8,10 +8,10 @@ const server = http.createServer(app);
 server.listen(port);
 
 // Prod
-// const wss = new WSS({server});
+const wss = new WSS({server});
 
 // Local
-const wss = new WSS({ port: 8081 });
+// const wss = new WSS({ port: 8081 });
 
 wss.on('connection', socket => {
   // Successful connection messge
