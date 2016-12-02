@@ -57,15 +57,6 @@ const template = `
       position: relative;
     }
 
-    .transcript::after {
-      content: '';
-      background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%, #01579B 80%);
-      height: 2rem;
-      position: absolute;
-      width: 100%;
-      bottom: 0;
-    }
-
     .transcript li {
       display: flex;
       flex-direction: column;
@@ -113,6 +104,16 @@ const template = `
       display: flex;
       margin-top: auto;
       height: 3rem;
+      position: relative;
+    }
+
+    .form-area::after {
+      content: '';
+      background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%, #01579B 80%);
+      height: 2rem;
+      position: absolute;
+      width: 100%;
+      top: -2rem;
     }
 
     .form-area input {
