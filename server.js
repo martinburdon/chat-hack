@@ -24,7 +24,7 @@ wss.on('connection', socket => {
 
   // When new message received
   socket.on('message', messageDataString => {
-    broadcast(messageDataString);
+    broadcast(messageDataString, socket);
   });
 
   // On connection close
@@ -33,14 +33,15 @@ wss.on('connection', socket => {
   });
 });
 
-const broadcast = (messageDataString) => {
+const broadcast = (messageDataString, socket) => {
   let messageData = JSON.parse(messageDataString);
   messageData.time = getDateTime();
+  messageData.className = 'not-my-msg';
   messageData = JSON.stringify(messageData);
 
   wss.clients.forEach(client => {
-    // Send message to each client
-    client.send(messageData);
+    // Send message to each client but not the sender
+    if (client !== socket) client.send(messageData);
   });
 }
 
